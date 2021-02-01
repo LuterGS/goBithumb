@@ -10,6 +10,10 @@ Go용 Bithumb API 클라이언트 프로그램입니다.
 
 
 # How to Use
+* 라이브러리 Download
+```shell
+user@ubuntu:~$ go get github.com/lutergs/gobithumb
+```
 * 라이브러리 Import
 ```go
 import(
