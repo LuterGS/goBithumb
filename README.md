@@ -33,8 +33,8 @@ import(
         panic(err)	
     }
     
-    // Private API 사용 시
-    buyId, err := BithumbClient.MarketBuy(b.BTC, b.KRW, 0.0002)예
+    // Private API 사용 예시
+    buyId, err := BithumbClient.MarketBuy(b.BTC, b.KRW, 0.0002)
     if err != nil{
         panic(err)	
     }
