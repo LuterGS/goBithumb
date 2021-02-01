@@ -40,8 +40,6 @@ func newHttpRequester(connectKey string, secretKey string) *httpRequester {
 
 func (h *httpRequester) requestPublic(order publicOrder, data string) []byte {
 
-	Timelog(h.basicUrl + string(order) + "/" + data)
-
 	request, err := http.NewRequest("GET", h.basicUrl+string(order)+"/"+data, nil)
 	if err != nil {
 		panic("Failed to create Request")
@@ -54,8 +52,7 @@ func (h *httpRequester) requestPublic(order publicOrder, data string) []byte {
 
 	byteResponse, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		Timelog("Failed to receive Data")
-		panic(err)
+		timelog("Failed to receive Data")
 	}
 	return byteResponse
 }
@@ -109,12 +106,4 @@ func (h *httpRequester) encryptData(endpoint string, body string, nonce string) 
 
 	result := base64.StdEncoding.EncodeToString(byteHexData)
 	return result
-}
-
-func Test2() {
-
-	//original := NewBithumbRequester("57bc35837f7f00c6f64a25d25ef69f6f", "7539214f665dfbd945dac04010b16eea")
-	//val := original.GetCandleStick(BTC, KRW, H24)
-	//Timelog(len(val.Data))
-
 }

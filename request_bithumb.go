@@ -108,7 +108,7 @@ func (b *BithumbRequester) GetTicker(orderCurrency Currency, paymentCurrency Cur
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetTicker failed : ", reqResult["message"].(string))
+		timelog("GetTicker failed : ", reqResult["message"].(string))
 		return result, time.Now(), errors.New(errNo)
 	}
 
@@ -136,7 +136,7 @@ func (b *BithumbRequester) GetOrderbook(orderCurrency Currency, paymentCurrency 
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetOrderbook failed : ", reqResult["message"].(string))
+		timelog("GetOrderbook failed : ", reqResult["message"].(string))
 		return result, time.Now(), errors.New(errNo)
 	}
 
@@ -164,7 +164,7 @@ func (b *BithumbRequester) GetTransactionHistory(orderCurrency Currency, payment
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetTransactionHistory failed : ", reqResult["message"].(string))
+		timelog("GetTransactionHistory failed : ", reqResult["message"].(string))
 		return nil, errors.New(errNo)
 	}
 
@@ -178,7 +178,7 @@ func (b *BithumbRequester) GetAssetsStatus(orderCurrency Currency) (bool, bool, 
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetAssetsStatus failed : ", reqResult["message"].(string))
+		timelog("GetAssetsStatus failed : ", reqResult["message"].(string))
 		return false, false, errors.New(errNo)
 	}
 
@@ -200,14 +200,13 @@ func (b *BithumbRequester) GetBTCI() (BTCI, time.Time, error) {
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetBTCI failed : ", reqResult["message"].(string))
+		timelog("GetBTCI failed : ", reqResult["message"].(string))
 		var noneBTCI BTCI
 		return noneBTCI, time.Now(), errors.New(errNo)
 	}
 
 	// Convert data
 	datas := reqResult["data"].(map[string]interface{})
-	Timelog(datas)
 
 	// Time check
 	reqTime := milliStringToTime(datas["date"].(string))
@@ -223,10 +222,10 @@ func (b *BithumbRequester) GetCandleStick(orderCurreny Currency, paymentCurrency
 	var rawResult RawCandleStick
 	_ = json.Unmarshal(requestResult, &rawResult)
 
-	Timelog(string(requestResult))
+	timelog(string(requestResult))
 
 	if rawResult.Status != 0 {
-		Timelog("GetCandleStick failed : ", rawResult.Message)
+		timelog("GetCandleStick failed : ", rawResult.Message)
 		var result []OneCandleStick
 		return result, errors.New(strconv.Itoa(rawResult.Status))
 
@@ -248,12 +247,11 @@ func (b *BithumbRequester) GetAccount(orderCurrency Currency, paymentCurrency Cu
 	passVal["payment_currency"] = string(paymentCurrency)
 	reqResult := b.privateRequest(b.account, passVal)
 	var result Account
-	Timelog(reqResult)
 
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetAccount failed : ", reqResult["message"].(string))
+		timelog("GetAccount failed : ", reqResult["message"].(string))
 		return result, errors.New(errNo)
 	}
 
@@ -268,7 +266,7 @@ func (b *BithumbRequester) GetBalance(orderCurrency Currency) (map[Currency]*Bal
 	// Error check
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetBalance failed : ", reqResult["message"].(string))
+		timelog("GetBalance failed : ", reqResult["message"].(string))
 		return nil, errors.New(errNo)
 	}
 
@@ -307,11 +305,10 @@ func (b *BithumbRequester) GetWalletAddress(orderCurrency Currency) (string, err
 	passVal := make(map[string]string)
 	passVal["currency"] = string(orderCurrency)
 	reqResult := b.privateRequest(b.walletAddress, passVal)
-	Timelog(reqResult)
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetAccount failed : ", reqResult["message"].(string))
+		timelog("GetAccount failed : ", reqResult["message"].(string))
 		return "", errors.New(errNo)
 	}
 
@@ -327,7 +324,7 @@ func (b *BithumbRequester) GetUserTicker(orderCurrency Currency, paymentCurrency
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetAccount failed : ", reqResult["message"].(string))
+		timelog("GetAccount failed : ", reqResult["message"].(string))
 		return result, errors.New(errNo)
 	}
 
@@ -354,7 +351,7 @@ func (b *BithumbRequester) GetOrder(orderCurrency Currency, paymentCurrency Curr
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetOrder failed : ", reqResult["message"].(string))
+		timelog("GetOrder failed : ", reqResult["message"].(string))
 		return nil, errors.New(errNo)
 	}
 
@@ -379,7 +376,7 @@ func (b *BithumbRequester) GetOrderDetail(orderCurrency Currency, paymentCurrenc
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetOrderDetail failed : ", reqResult["message"].(string))
+		timelog("GetOrderDetail failed : ", reqResult["message"].(string))
 		return result, errors.New(errNo)
 	}
 
@@ -402,7 +399,7 @@ func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurren
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("GetTransactions failed : ", reqResult["message"].(string))
+		timelog("GetTransactions failed : ", reqResult["message"].(string))
 		return nil, errors.New(errNo)
 	}
 
@@ -411,10 +408,6 @@ func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurren
 	datas := reqResult["data"].([]interface{})
 	for _, data := range datas {
 		result = append(result, newTransaction(data.(map[string]interface{})))
-	}
-
-	for index, data := range result {
-		Timelog(index, data)
 	}
 	return result, nil
 }
@@ -426,12 +419,11 @@ func (b *BithumbRequester) PlaceOrder(orderCurrency Currency, paymentCurrency Cu
 	passVal["units"] = strconv.FormatFloat(amount, 'f', -1, 64)
 	passVal["price"] = strconv.FormatFloat(price, 'f', -1, 64)
 	passVal["type"] = order
-	Timelog(passVal)
 	reqResult := b.privateRequest(b.place, passVal)
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("PlaceOrder failed : ", reqResult["message"].(string))
+		timelog("PlaceOrder failed : ", reqResult["message"].(string))
 		return "", errors.New(errNo)
 	}
 
@@ -448,7 +440,7 @@ func (b *BithumbRequester) CancelOrder(orderCurrency Currency, paymentCurrency C
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("CancelOrder failed : ", reqResult["message"].(string))
+		timelog("CancelOrder failed : ", reqResult["message"].(string))
 		return nil
 	}
 	return errors.New(errNo)
@@ -463,7 +455,7 @@ func (b *BithumbRequester) MarketBuy(orderCurrency Currency, paymentCurrency Cur
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("MarketBuy failed : ", reqResult["message"].(string))
+		timelog("MarketBuy failed : ", reqResult["message"].(string))
 		return "", errors.New(errNo)
 	}
 
@@ -479,7 +471,7 @@ func (b *BithumbRequester) MarketSell(orderCurrency Currency, paymentCurrency Cu
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("MarketSell failed : ", reqResult["message"].(string))
+		timelog("MarketSell failed : ", reqResult["message"].(string))
 		return "", errors.New(errNo)
 	}
 
@@ -498,7 +490,7 @@ func (b *BithumbRequester) StopLimit(orderCurrency Currency, paymentCurrency Cur
 
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("StopLimit failed : ", reqResult["message"].(string))
+		timelog("StopLimit failed : ", reqResult["message"].(string))
 		return "", errors.New(errNo)
 	}
 
@@ -530,7 +522,7 @@ func (b *BithumbRequester) WithDrawCoin(orderCurrency Currency, amount float64, 
 	reqResult := b.privateRequest(b.withdrawalCoin, passVal)
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("WithdrawCoin failed : ", reqResult["message"].(string))
+		timelog("WithdrawCoin failed : ", reqResult["message"].(string))
 		return errors.New(errNo)
 	}
 	return nil
@@ -544,7 +536,7 @@ func (b *BithumbRequester) WithdrawKRW(account string, price int) error {
 	reqResult := b.privateRequest(b.withdrawalKRW, passVal)
 	errNo := reqResult["status"].(string)
 	if errNo != "0000" {
-		Timelog("WithdrawKRW failed : ", reqResult["message"].(string))
+		timelog("WithdrawKRW failed : ", reqResult["message"].(string))
 		return errors.New(errNo)
 	}
 	return nil
