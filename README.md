@@ -1,7 +1,7 @@
 goBithumb
 =======================
 
-Go용 Bithumb API 클라이언트 프로그램입니다.
+Go용 Bithumb API 클라이언트 프로그램입니다. (Bithumb API Client for Golang)
 ----
 
 # Requirements
