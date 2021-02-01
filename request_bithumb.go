@@ -84,26 +84,26 @@ func (b *BithumbRequester) publicRequest(reqUrl publicOrder, reqBody string) map
 	return result
 }
 
-func (b *BithumbRequester) GetTradableCoinList() []currency {
+func (b *BithumbRequester) GetTradableCoinList() []Currency {
 	requestResult := b.requester.requestPublic(b.ticker, "all_krw")
 	var tempResult map[string]interface{}
 	var stringResult []string
-	var result []currency
+	var result []Currency
 	_ = json.Unmarshal(requestResult, &tempResult)
 	datas := tempResult["data"].(map[string]interface{})
-	for index, _ := range datas {
+	for index := range datas {
 		stringResult = append(stringResult, index)
 	}
 	sort.Strings(stringResult)
 	for _, data := range stringResult {
-		result = append(result, currency(strings.ToLower(data)))
+		result = append(result, Currency(strings.ToLower(data)))
 	}
 	return result[:len(result)-1] // 마지막 하나가 date이므로, date를 제외하고 전달함
 }
 
-func (b *BithumbRequester) GetTicker(orderCurrency currency, paymentCurrency currency) (map[currency]Ticker, time.Time, error) {
+func (b *BithumbRequester) GetTicker(orderCurrency Currency, paymentCurrency Currency) (map[Currency]Ticker, time.Time, error) {
 	reqResult := b.publicRequest(b.ticker, string(orderCurrency)+"_"+string(paymentCurrency))
-	result := make(map[currency]Ticker)
+	result := make(map[Currency]Ticker)
 
 	// Error check
 	errNo := reqResult["status"].(string)
@@ -120,18 +120,18 @@ func (b *BithumbRequester) GetTicker(orderCurrency currency, paymentCurrency cur
 	delete(datas, "date")
 
 	if orderCurrency != ALL {
-		result[orderCurrency] = NewTicker(datas)
+		result[orderCurrency] = newTicker(datas)
 	} else {
 		for index, data := range datas {
-			result[currency(index)] = NewTicker(data.(map[string]interface{}))
+			result[Currency(index)] = newTicker(data.(map[string]interface{}))
 		}
 	}
 	return result, reqTime, nil
 }
 
-func (b *BithumbRequester) GetOrderbook(orderCurrency currency, paymentCurrency currency) (map[currency]Orderbook, time.Time, error) {
+func (b *BithumbRequester) GetOrderbook(orderCurrency Currency, paymentCurrency Currency) (map[Currency]Orderbook, time.Time, error) {
 	reqResult := b.publicRequest(b.orderbook, string(orderCurrency)+"_"+string(paymentCurrency))
-	result := make(map[currency]Orderbook)
+	result := make(map[Currency]Orderbook)
 
 	// Error check
 	errNo := reqResult["status"].(string)
@@ -148,17 +148,17 @@ func (b *BithumbRequester) GetOrderbook(orderCurrency currency, paymentCurrency 
 	delete(datas, "timestamp")
 
 	if orderCurrency != ALL {
-		result[orderCurrency] = NewOrderbook(datas)
+		result[orderCurrency] = newOrderbook(datas)
 	} else {
 		delete(datas, "payment_currency")
 		for index, data := range datas {
-			result[currency(index)] = NewOrderbook(data.(map[string]interface{}))
+			result[Currency(index)] = newOrderbook(data.(map[string]interface{}))
 		}
 	}
 	return result, reqTime, nil
 }
 
-func (b *BithumbRequester) GetTransactionHistory(orderCurrency currency, paymentCurrency currency) ([]OneTransaction, error) {
+func (b *BithumbRequester) GetTransactionHistory(orderCurrency Currency, paymentCurrency Currency) ([]OneTransaction, error) {
 	reqResult := b.publicRequest(b.trHistory, string(orderCurrency)+"_"+string(paymentCurrency))
 
 	// Error check
@@ -169,10 +169,10 @@ func (b *BithumbRequester) GetTransactionHistory(orderCurrency currency, payment
 	}
 
 	// Convert data and return
-	return NewTransactionHistory(reqResult["data"].([]interface{})), nil
+	return newTransactionHistory(reqResult["data"].([]interface{})), nil
 }
 
-func (b *BithumbRequester) GetAssetsStatus(orderCurrency currency) (bool, bool, error) {
+func (b *BithumbRequester) GetAssetsStatus(orderCurrency Currency) (bool, bool, error) {
 	reqResult := b.publicRequest(b.assetsStatus, string(orderCurrency))
 
 	// Error check
@@ -214,10 +214,10 @@ func (b *BithumbRequester) GetBTCI() (BTCI, time.Time, error) {
 	delete(datas, "date")
 
 	// return result
-	return NewBTCI(datas["btai"], datas["btmi"]), reqTime, nil
+	return newBTCI(datas["btai"], datas["btmi"]), reqTime, nil
 }
 
-func (b *BithumbRequester) GetCandleStick(orderCurreny currency, paymentCurrency currency, chartInterval timeInterval) ([]OneCandleStick, error) {
+func (b *BithumbRequester) GetCandleStick(orderCurreny Currency, paymentCurrency Currency, chartInterval TimeInterval) ([]OneCandleStick, error) {
 	body := string(orderCurreny) + "_" + string(paymentCurrency) + "/" + string(chartInterval)
 	requestResult := b.requester.requestPublic(b.candlestick, body)
 	var rawResult RawCandleStick
@@ -231,7 +231,7 @@ func (b *BithumbRequester) GetCandleStick(orderCurreny currency, paymentCurrency
 		return result, errors.New(strconv.Itoa(rawResult.Status))
 
 	}
-	return NewCandleStick(rawResult), nil
+	return newCandleStick(rawResult), nil
 }
 
 func (b *BithumbRequester) privateRequest(reqUrl privateOrder, requestVal map[string]string) map[string]interface{} {
@@ -242,7 +242,7 @@ func (b *BithumbRequester) privateRequest(reqUrl privateOrder, requestVal map[st
 	return result
 }
 
-func (b *BithumbRequester) GetAccount(orderCurrency currency, paymentCurrency currency) (Account, error) {
+func (b *BithumbRequester) GetAccount(orderCurrency Currency, paymentCurrency Currency) (Account, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -257,10 +257,10 @@ func (b *BithumbRequester) GetAccount(orderCurrency currency, paymentCurrency cu
 		return result, errors.New(errNo)
 	}
 
-	return NewAccount(reqResult["data"].(map[string]interface{})), nil
+	return newAccount(reqResult["data"].(map[string]interface{})), nil
 }
 
-func (b *BithumbRequester) GetBalance(orderCurrency currency) (map[currency]*Balance, error) {
+func (b *BithumbRequester) GetBalance(orderCurrency Currency) (map[Currency]*Balance, error) {
 	passVal := make(map[string]string)
 	passVal["currency"] = string(orderCurrency)
 	reqResult := b.privateRequest(b.balance, passVal)
@@ -273,12 +273,12 @@ func (b *BithumbRequester) GetBalance(orderCurrency currency) (map[currency]*Bal
 	}
 
 	// Convert data
-	result := make(map[currency]*Balance)
+	result := make(map[Currency]*Balance)
 	datas := reqResult["data"].(map[string]interface{})
 
 	if orderCurrency != ALL {
-		result[orderCurrency] = NewBalance(datas, string(orderCurrency))
-		result[KRW] = NewBalance(datas, string(KRW))
+		result[orderCurrency] = newBalance(datas, string(orderCurrency))
+		result[KRW] = newBalance(datas, string(KRW))
 	} else {
 		for _, data := range COIN_ALL() {
 			result[data] = &Balance{}
@@ -286,16 +286,16 @@ func (b *BithumbRequester) GetBalance(orderCurrency currency) (map[currency]*Bal
 		for index, data := range datas {
 			coin, value := rawBalanceStringToBalance(index)
 			if value == 1 {
-				result[currency(coin)].Total, _ = strconv.ParseFloat(data.(string), 64)
+				result[Currency(coin)].Total, _ = strconv.ParseFloat(data.(string), 64)
 			}
 			if value == 2 {
-				result[currency(coin)].InUse, _ = strconv.ParseFloat(data.(string), 64)
+				result[Currency(coin)].InUse, _ = strconv.ParseFloat(data.(string), 64)
 			}
 			if value == 3 {
-				result[currency(coin)].Available, _ = strconv.ParseFloat(data.(string), 64)
+				result[Currency(coin)].Available, _ = strconv.ParseFloat(data.(string), 64)
 			}
 			if value == 4 {
-				result[currency(coin)].XCoinLast, _ = strconv.ParseFloat(data.(string), 64)
+				result[Currency(coin)].XCoinLast, _ = strconv.ParseFloat(data.(string), 64)
 			}
 		}
 	}
@@ -303,7 +303,7 @@ func (b *BithumbRequester) GetBalance(orderCurrency currency) (map[currency]*Bal
 }
 
 // TODO : Docs 쓸 때, 만약 주소가 없으면 정상 처리는 되나 아무 값도 리턴하지 않는다고 서술해야함.
-func (b *BithumbRequester) GetWalletAddress(orderCurrency currency) (string, error) {
+func (b *BithumbRequester) GetWalletAddress(orderCurrency Currency) (string, error) {
 	passVal := make(map[string]string)
 	passVal["currency"] = string(orderCurrency)
 	reqResult := b.privateRequest(b.walletAddress, passVal)
@@ -318,7 +318,7 @@ func (b *BithumbRequester) GetWalletAddress(orderCurrency currency) (string, err
 	return reqResult["data"].(map[string]interface{})["wallet_address"].(string), nil
 }
 
-func (b *BithumbRequester) GetUserTicker(orderCurrency currency, paymentCurrency currency) (UserTicker, error) {
+func (b *BithumbRequester) GetUserTicker(orderCurrency Currency, paymentCurrency Currency) (UserTicker, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -331,12 +331,12 @@ func (b *BithumbRequester) GetUserTicker(orderCurrency currency, paymentCurrency
 		return result, errors.New(errNo)
 	}
 
-	result = NewUserTicker(reqResult["data"].(map[string]interface{}))
+	result = newUserTicker(reqResult["data"].(map[string]interface{}))
 	return result, nil
 }
 
 // -> date에 값이 들어올 경우, 최측 하나만 사용
-func (b *BithumbRequester) GetOrder(orderCurrency currency, paymentCurrency currency, count int, date ...time.Time) ([]Order, error) {
+func (b *BithumbRequester) GetOrder(orderCurrency Currency, paymentCurrency Currency, count int, date ...time.Time) ([]Order, error) {
 
 	// parameter 정상 체크
 	if !(count > 0 && count < 1001) {
@@ -363,13 +363,13 @@ func (b *BithumbRequester) GetOrder(orderCurrency currency, paymentCurrency curr
 	var result []Order
 
 	for _, data := range datas {
-		result = append(result, NewOrder(data.(map[string]interface{})))
+		result = append(result, newOrder(data.(map[string]interface{})))
 	}
 
 	return result, nil
 }
 
-func (b *BithumbRequester) GetOrderDetail(orderCurrency currency, paymentCurrency currency, orderId string) (OrderDetail, error) {
+func (b *BithumbRequester) GetOrderDetail(orderCurrency Currency, paymentCurrency Currency, orderId string) (OrderDetail, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -383,12 +383,12 @@ func (b *BithumbRequester) GetOrderDetail(orderCurrency currency, paymentCurrenc
 		return result, errors.New(errNo)
 	}
 
-	result = NewOrderDetail(result, reqResult["data"].(map[string]interface{}))
+	result = newOrderDetail(result, reqResult["data"].(map[string]interface{}))
 
 	return result, errors.New(errNo)
 }
 
-func (b *BithumbRequester) GetTransactions(orderCurrency currency, paymentCurrency currency, search searchType, offset_count ...int) ([]Transactions, error) {
+func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurrency Currency, search SearchType, offset_count ...int) ([]Transactions, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -410,7 +410,7 @@ func (b *BithumbRequester) GetTransactions(orderCurrency currency, paymentCurren
 	var result []Transactions
 	datas := reqResult["data"].([]interface{})
 	for _, data := range datas {
-		result = append(result, NewTransaction(data.(map[string]interface{})))
+		result = append(result, newTransaction(data.(map[string]interface{})))
 	}
 
 	for index, data := range result {
@@ -419,7 +419,7 @@ func (b *BithumbRequester) GetTransactions(orderCurrency currency, paymentCurren
 	return result, nil
 }
 
-func (b *BithumbRequester) PlaceOrder(orderCurrency currency, paymentCurrency currency, amount float64, price float64, order string) (string, error) {
+func (b *BithumbRequester) PlaceOrder(orderCurrency Currency, paymentCurrency Currency, amount float64, price float64, order string) (string, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -438,7 +438,7 @@ func (b *BithumbRequester) PlaceOrder(orderCurrency currency, paymentCurrency cu
 	return reqResult["order_id"].(string), nil
 }
 
-func (b *BithumbRequester) CancelOrder(orderCurrency currency, paymentCurrency currency, orderId string, order string) error {
+func (b *BithumbRequester) CancelOrder(orderCurrency Currency, paymentCurrency Currency, orderId string, order string) error {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -454,7 +454,7 @@ func (b *BithumbRequester) CancelOrder(orderCurrency currency, paymentCurrency c
 	return errors.New(errNo)
 }
 
-func (b *BithumbRequester) MarketBuy(orderCurrency currency, paymentCurrency currency, amount float64) (string, error) {
+func (b *BithumbRequester) MarketBuy(orderCurrency Currency, paymentCurrency Currency, amount float64) (string, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -470,7 +470,7 @@ func (b *BithumbRequester) MarketBuy(orderCurrency currency, paymentCurrency cur
 	return reqResult["order_id"].(string), nil
 }
 
-func (b *BithumbRequester) MarketSell(orderCurrency currency, paymentCurrency currency, amount float64) (string, error) {
+func (b *BithumbRequester) MarketSell(orderCurrency Currency, paymentCurrency Currency, amount float64) (string, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -486,7 +486,7 @@ func (b *BithumbRequester) MarketSell(orderCurrency currency, paymentCurrency cu
 	return reqResult["order_id"].(string), nil
 }
 
-func (b *BithumbRequester) StopLimit(orderCurrency currency, paymentCurrency currency, watchPrice float64, price float64, amount float64, order string) (string, error) {
+func (b *BithumbRequester) StopLimit(orderCurrency Currency, paymentCurrency Currency, watchPrice float64, price float64, amount float64, order string) (string, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -505,7 +505,7 @@ func (b *BithumbRequester) StopLimit(orderCurrency currency, paymentCurrency cur
 	return reqResult["order_id"].(string), nil
 }
 
-func (b *BithumbRequester) WithDrawCoin(orderCurrency currency, amount float64, address string, destination ...interface{}) error {
+func (b *BithumbRequester) WithDrawCoin(orderCurrency Currency, amount float64, address string, destination ...interface{}) error {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["units"] = strconv.FormatFloat(amount, 'f', -1, 64)

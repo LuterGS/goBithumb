@@ -22,7 +22,7 @@ type Ticker struct {
 	FluctateRate24H  float64
 }
 
-func NewTicker(rawTicker map[string]interface{}) Ticker {
+func newTicker(rawTicker map[string]interface{}) Ticker {
 	newTicker := Ticker{}
 	newTicker.OpeningPrice, _ = strconv.ParseFloat(rawTicker["opening_price"].(string), 64)
 	newTicker.ClosingPrice, _ = strconv.ParseFloat(rawTicker["closing_price"].(string), 64)
@@ -41,24 +41,24 @@ func NewTicker(rawTicker map[string]interface{}) Ticker {
 
 //==============================ORDERBOOK SETTING======================================
 
-type bidask struct {
+type Bidask struct {
 	Price    float64
 	Quantity float64
 }
 
 type Orderbook struct {
-	Bids []bidask
-	Asks []bidask
+	Bids []Bidask
+	Asks []Bidask
 }
 
-func NewOrderbook(rawOrderbook map[string]interface{}) Orderbook {
+func newOrderbook(rawOrderbook map[string]interface{}) Orderbook {
 	newOrderbook := Orderbook{}
 
 	bids := rawOrderbook["bids"].([]interface{})
 	asks := rawOrderbook["asks"].([]interface{})
 
-	newOrderbook.Bids = make([]bidask, len(bids))
-	newOrderbook.Asks = make([]bidask, len(asks))
+	newOrderbook.Bids = make([]Bidask, len(bids))
+	newOrderbook.Asks = make([]Bidask, len(asks))
 	for index, data := range bids {
 		oneBid := data.(map[string]interface{})
 		newOrderbook.Bids[index].Price, _ = strconv.ParseFloat(oneBid["price"].(string), 64)
@@ -84,7 +84,7 @@ type OneTransaction struct {
 
 const trTimeForm = "2006-01-02 15:04:05"
 
-func NewTransactionHistory(rawTransactionHistory []interface{}) []OneTransaction {
+func newTransactionHistory(rawTransactionHistory []interface{}) []OneTransaction {
 	result := make([]OneTransaction, len(rawTransactionHistory))
 	for index, data := range rawTransactionHistory {
 		dataMap := data.(map[string]interface{})
@@ -99,15 +99,6 @@ func NewTransactionHistory(rawTransactionHistory []interface{}) []OneTransaction
 
 //==============================ASSETSSTATUS SETTING======================================
 
-type AssetsStatus struct {
-	Status  int    `json:"status,string"`
-	Message string `json:"message"`
-	Data    struct {
-		WithdrawlStatus int `json:"withdrawl_status"`
-		DepositStatus   int `json:"deposit_status"`
-	}
-}
-
 //==============================BTCI SETTING======================================
 
 type BT_I struct {
@@ -121,7 +112,7 @@ type BTCI struct {
 	BTMI BT_I
 }
 
-func NewBTCI(rawBTAI, rawBTMI interface{}) BTCI {
+func newBTCI(rawBTAI, rawBTMI interface{}) BTCI {
 	btai := rawBTAI.(map[string]interface{})
 	btmi := rawBTMI.(map[string]interface{})
 
@@ -152,7 +143,7 @@ type OneCandleStick struct {
 	UnitsTraded  float64
 }
 
-func NewCandleStick(rawCandleStick RawCandleStick) []OneCandleStick {
+func newCandleStick(rawCandleStick RawCandleStick) []OneCandleStick {
 	candleStick := make([]OneCandleStick, len(rawCandleStick.Data))
 	for index, data := range rawCandleStick.Data {
 		candleStick[index].Time = milliStringToTime(strconv.FormatInt(int64(int(data[0].(float64))), 10))
@@ -180,7 +171,7 @@ type Account struct {
 	TradeFee float64
 }
 
-func NewAccount(rawAccount map[string]interface{}) Account {
+func newAccount(rawAccount map[string]interface{}) Account {
 	newAccount := Account{}
 	newAccount.ID = rawAccount["account_id"].(string)
 	newAccount.Created = milliStringToTime(rawAccount["created"].(string))
@@ -198,7 +189,7 @@ type Balance struct {
 	XCoinLast float64
 }
 
-func NewBalance(rawBalance map[string]interface{}, coin string) *Balance {
+func newBalance(rawBalance map[string]interface{}, coin string) *Balance {
 	newBalance := Balance{}
 	newBalance.Total, _ = strconv.ParseFloat(rawBalance["total_"+coin].(string), 64)
 	newBalance.InUse, _ = strconv.ParseFloat(rawBalance["in_use_"+coin].(string), 64)
@@ -222,7 +213,7 @@ type UserTicker struct {
 	FluctateRate24H float64
 }
 
-func NewUserTicker(rawUserTicker map[string]interface{}) UserTicker {
+func newUserTicker(rawUserTicker map[string]interface{}) UserTicker {
 	newUserTicker := UserTicker{}
 	newUserTicker.OpeningPrice, _ = strconv.ParseFloat(rawUserTicker["opening_price"].(string), 64)
 	newUserTicker.ClosingPrice, _ = strconv.ParseFloat(rawUserTicker["closing_price"].(string), 64)
@@ -241,8 +232,8 @@ func NewUserTicker(rawUserTicker map[string]interface{}) UserTicker {
 
 type Order struct {
 	OrderDate       time.Time
-	OrderCurrency   currency
-	PaymentCurrency currency
+	OrderCurrency   Currency
+	PaymentCurrency Currency
 	OrderID         string
 	Price           float64
 	Type            string
@@ -251,11 +242,11 @@ type Order struct {
 	WatchPrice      float64
 }
 
-func NewOrder(rawOrder map[string]interface{}) Order {
+func newOrder(rawOrder map[string]interface{}) Order {
 	newOrder := Order{}
 	newOrder.OrderDate = microStringToTime(rawOrder["order_date"].(string))
-	newOrder.OrderCurrency = currency(strings.ToLower(rawOrder["order_currency"].(string)))
-	newOrder.PaymentCurrency = currency(strings.ToLower(rawOrder["payment_currency"].(string)))
+	newOrder.OrderCurrency = Currency(strings.ToLower(rawOrder["order_currency"].(string)))
+	newOrder.PaymentCurrency = Currency(strings.ToLower(rawOrder["payment_currency"].(string)))
 	newOrder.OrderID = rawOrder["order_id"].(string)
 	newOrder.Price, _ = strconv.ParseFloat(rawOrder["price"].(string), 64)
 	newOrder.Type = rawOrder["type"].(string)
@@ -271,7 +262,7 @@ type SingleOrderDetail struct {
 	TransactionDate time.Time
 	Price           float64
 	Units           float64
-	FeeCurrency     currency
+	FeeCurrency     Currency
 	Fee             float64
 	Total           float64
 }
@@ -280,8 +271,8 @@ type OrderDetail struct {
 	OrderDate       time.Time
 	Type            string
 	OrderStatus     string
-	OrderCurrency   currency
-	PaymentCurrency currency
+	OrderCurrency   Currency
+	PaymentCurrency Currency
 	OrderPrice      float64
 	OrderQty        float64
 	CancelDate      time.Time
@@ -289,12 +280,12 @@ type OrderDetail struct {
 	Contract        []SingleOrderDetail
 }
 
-func NewOrderDetail(newOrderDetail OrderDetail, rawOrderDetail map[string]interface{}) OrderDetail {
+func newOrderDetail(newOrderDetail OrderDetail, rawOrderDetail map[string]interface{}) OrderDetail {
 	newOrderDetail.OrderDate = microStringToTime(rawOrderDetail["order_date"].(string))
 	newOrderDetail.Type = rawOrderDetail["type"].(string)
 	newOrderDetail.OrderStatus = rawOrderDetail["order_status"].(string)
-	newOrderDetail.OrderCurrency = currency(strings.ToLower(rawOrderDetail["order_currency"].(string)))
-	newOrderDetail.PaymentCurrency = currency(strings.ToLower(rawOrderDetail["payment_currency"].(string)))
+	newOrderDetail.OrderCurrency = Currency(strings.ToLower(rawOrderDetail["order_currency"].(string)))
+	newOrderDetail.PaymentCurrency = Currency(strings.ToLower(rawOrderDetail["payment_currency"].(string)))
 	newOrderDetail.OrderPrice, _ = strconv.ParseFloat(rawOrderDetail["order_price"].(string), 64)
 	newOrderDetail.OrderQty, _ = strconv.ParseFloat(rawOrderDetail["payment_currency"].(string), 64)
 	if rawOrderDetail["cancel_date"].(string) != "" {
@@ -309,7 +300,7 @@ func NewOrderDetail(newOrderDetail OrderDetail, rawOrderDetail map[string]interf
 		newOrderDetail.Contract[index].TransactionDate = microStringToTime(singleContract["transaction_date"].(string))
 		newOrderDetail.Contract[index].Price, _ = strconv.ParseFloat(singleContract["price"].(string), 64)
 		newOrderDetail.Contract[index].Units, _ = strconv.ParseFloat(singleContract["units"].(string), 64)
-		newOrderDetail.Contract[index].FeeCurrency = currency(strings.ToLower(singleContract["fee_currency"].(string)))
+		newOrderDetail.Contract[index].FeeCurrency = Currency(strings.ToLower(singleContract["fee_currency"].(string)))
 		newOrderDetail.Contract[index].Fee, _ = strconv.ParseFloat(singleContract["fee"].(string), 64)
 		newOrderDetail.Contract[index].Total, _ = strconv.ParseFloat(singleContract["total"].(string), 64)
 	}
@@ -320,26 +311,26 @@ func NewOrderDetail(newOrderDetail OrderDetail, rawOrderDetail map[string]interf
 //==============================ORDER SETTING======================================
 
 type Transactions struct {
-	Search          searchType
+	Search          SearchType
 	TransferDate    time.Time
-	OrderCurrency   currency
-	PaymentCurrency currency
+	OrderCurrency   Currency
+	PaymentCurrency Currency
 	Units           float64
 	Price           float64
 	Amount          float64
-	FeeCurrency     currency
+	FeeCurrency     Currency
 	Fee             float64
 	OrderBalance    float64
 	PaymentBalance  float64
 }
 
-func NewTransaction(rawTransaction map[string]interface{}) Transactions {
+func newTransaction(rawTransaction map[string]interface{}) Transactions {
 	newTransaction := Transactions{}
-	newTransaction.Search = searchType(rawTransaction["search"].(string))
+	newTransaction.Search = SearchType(rawTransaction["search"].(string))
 	newTransaction.TransferDate = microStringToTime(rawTransaction["transfer_date"].(string))
-	newTransaction.OrderCurrency = currency(strings.ToLower(rawTransaction["order_currency"].(string)))
-	newTransaction.PaymentCurrency = currency(strings.ToLower(rawTransaction["payment_currency"].(string)))
-	newTransaction.FeeCurrency = currency(strings.ToLower(rawTransaction["fee_currency"].(string)))
+	newTransaction.OrderCurrency = Currency(strings.ToLower(rawTransaction["order_currency"].(string)))
+	newTransaction.PaymentCurrency = Currency(strings.ToLower(rawTransaction["payment_currency"].(string)))
+	newTransaction.FeeCurrency = Currency(strings.ToLower(rawTransaction["fee_currency"].(string)))
 	newTransaction.Units, _ = strconv.ParseFloat(rawTransaction["units"].(string), 64)
 	newTransaction.Price, _ = strconv.ParseFloat(rawTransaction["price"].(string), 64)
 	newTransaction.Amount, _ = strconv.ParseFloat(rawTransaction["amount"].(string), 64)
