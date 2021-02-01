@@ -194,7 +194,9 @@ func newBalance(rawBalance map[string]interface{}, coin string) *Balance {
 	newBalance.Total, _ = strconv.ParseFloat(rawBalance["total_"+coin].(string), 64)
 	newBalance.InUse, _ = strconv.ParseFloat(rawBalance["in_use_"+coin].(string), 64)
 	newBalance.Available, _ = strconv.ParseFloat(rawBalance["available_"+coin].(string), 64)
-	newBalance.XCoinLast, _ = strconv.ParseFloat(rawBalance["xcoin_last_"+coin].(string), 64)
+	if coin != "krw" {
+		newBalance.XCoinLast, _ = strconv.ParseFloat(rawBalance["xcoin_last_"+coin].(string), 64)
+	}
 	return &newBalance
 }
 
