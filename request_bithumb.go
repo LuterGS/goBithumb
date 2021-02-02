@@ -345,7 +345,7 @@ func (b *BithumbRequester) GetOrder(orderCurrency Currency, paymentCurrency Curr
 	passVal["payment_currency"] = string(paymentCurrency)
 	passVal["count"] = strconv.Itoa(count)
 	if len(date) > 0 {
-		passVal["after"] = strconv.FormatInt(date[0].Unix(), 10)
+		passVal["after"] = strconv.FormatInt(date[0].Unix()*1000, 10)
 	}
 	reqResult := b.privateRequest(b.orders, passVal)
 
@@ -385,7 +385,7 @@ func (b *BithumbRequester) GetOrderDetail(orderCurrency Currency, paymentCurrenc
 	return result, errors.New(errNo)
 }
 
-func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurrency Currency, search SearchType, offset_count ...int) ([]Transactions, error) {
+func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurrency Currency, search SearchType, offset_count ...int) ([]Transaction, error) {
 	passVal := make(map[string]string)
 	passVal["order_currency"] = string(orderCurrency)
 	passVal["payment_currency"] = string(paymentCurrency)
@@ -404,7 +404,7 @@ func (b *BithumbRequester) GetTransactions(orderCurrency Currency, paymentCurren
 	}
 
 	// Convert data and input
-	var result []Transactions
+	var result []Transaction
 	datas := reqResult["data"].([]interface{})
 	for _, data := range datas {
 		result = append(result, newTransaction(data.(map[string]interface{})))

@@ -312,7 +312,7 @@ func newOrderDetail(newOrderDetail OrderDetail, rawOrderDetail map[string]interf
 
 //==============================ORDER SETTING======================================
 
-type Transactions struct {
+type Transaction struct {
 	Search          SearchType
 	TransferDate    time.Time
 	OrderCurrency   Currency
@@ -326,8 +326,8 @@ type Transactions struct {
 	PaymentBalance  float64
 }
 
-func newTransaction(rawTransaction map[string]interface{}) Transactions {
-	newTransaction := Transactions{}
+func newTransaction(rawTransaction map[string]interface{}) Transaction {
+	newTransaction := Transaction{}
 	newTransaction.Search = SearchType(rawTransaction["search"].(string))
 	newTransaction.TransferDate = microStringToTime(rawTransaction["transfer_date"].(string))
 	newTransaction.OrderCurrency = Currency(strings.ToLower(rawTransaction["order_currency"].(string)))
