@@ -1,7 +1,7 @@
 goBithumb
 =======================
 
-Go용 Bithumb API 클라이언트 프로그램입니다.
+Go용 Bithumb API 클라이언트 프로그램입니다. (Bithumb API Client for Golang)
 ----
 
 # Requirements
@@ -10,6 +10,10 @@ Go용 Bithumb API 클라이언트 프로그램입니다.
 
 
 # How to Use
+* 라이브러리 Download
+```shell
+user@ubuntu:~$ go get github.com/lutergs/gobithumb
+```
 * 라이브러리 Import
 ```go
 import(
@@ -29,8 +33,8 @@ import(
         panic(err)	
     }
     
-    // Private API 사용 시
-    buyId, err := BithumbClient.MarketBuy(b.BTC, b.KRW, 0.0002)예
+    // Private API 사용 예시
+    buyId, err := BithumbClient.MarketBuy(b.BTC, b.KRW, 0.0002)
     if err != nil{
         panic(err)	
     }
