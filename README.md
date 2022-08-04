@@ -2,6 +2,9 @@ goBithumb
 =======================
 
 Go용 Bithumb API 클라이언트 프로그램입니다. (Bithumb API Client for Golang)
+
+**해당 패키지에 대한 Issue 및 Pull requests, fork 는 언제든지 환영입니다!**
+
 ----
 
 # Requirements
